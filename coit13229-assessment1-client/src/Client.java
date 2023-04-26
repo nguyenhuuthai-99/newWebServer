@@ -20,7 +20,7 @@ import model.Fire;
  */
 public class Client {
     
-    public final int SERVER_PORT = 8887;
+    public final int SERVER_PORT = 8886;
     ObjectInputStream in = null;
     ObjectOutputStream out = null;
     Drone drone;
@@ -29,7 +29,7 @@ public class Client {
     private final int BASE_Y = 321;
     int droneX = 436;
     int droneY = 321;
-    
+    boolean clientRunning = true;
     private void runClient() {
         
         fires = new ArrayList();
@@ -45,9 +45,12 @@ public class Client {
             while (isRegistered==false) {
                 isRegistered = registerDrone();
             }
+            
+            
             new Thread() {
                 public void run() {
-                    while (true) {
+                    
+                    while (clientRunning) {
                         try {
                             String message = (String) in.readObject();
                             switch (message) {
@@ -68,6 +71,9 @@ public class Client {
                                     fires = new ArrayList();
                                     System.out.println("Location sent");
                                     break;
+                                case "shotDownServer":
+                                    recallDrone();
+                                    break;
                                 default:
                                 
                             }
@@ -81,7 +87,7 @@ public class Client {
                 }
             }.start();
             
-            while (true) {
+            while (clientRunning) {
                 Random random = new Random();
                 int randomMove = random.nextInt(4);
                 switch (randomMove) {
@@ -180,12 +186,21 @@ public class Client {
     }
     
     private void recallDrone() {
-        System.out.println("returning to base");
-        droneX = BASE_X;
-        droneY = BASE_Y;
-        drone.setX(BASE_X);
-        drone.setY(BASE_Y);
-        
+        try {
+            System.out.println("returning to base");
+            out.writeObject("recalling");
+            int droneId = in.readInt();
+            if(drone.getId()==droneId){
+                droneX = BASE_X;
+                droneY = BASE_Y;
+                drone.setX(BASE_X);
+                drone.setY(BASE_Y);
+                clientRunning = false;
+            }
+            
+        } catch (IOException ex) {
+            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
     
     private void moveRight() {

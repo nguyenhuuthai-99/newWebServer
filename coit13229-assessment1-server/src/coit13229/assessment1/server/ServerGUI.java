@@ -160,7 +160,24 @@ public class ServerGUI extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void deleteFireReportActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteFireReportActionPerformed
-        // TODO add your handling code here:
+        JComboBox fireBox = new JComboBox(fires.keySet().toArray());
+        
+            
+        JPanel firePanel = new JPanel();
+        firePanel.add(new JLabel("Fire Id:"));
+        firePanel.add(fireBox);
+        int result = JOptionPane.showConfirmDialog(null, firePanel, "delete fire",JOptionPane.YES_NO_OPTION);
+        if (result==JOptionPane.YES_OPTION) {
+            int selectedFire = Integer.parseInt(fireBox.getSelectedItem().toString());
+            JLabel fireIcon = fires.get(selectedFire);
+            
+            mapPane.remove(fireIcon);
+            fires.remove(selectedFire);
+            server.deleteFireReport(selectedFire);
+            mapPane.revalidate();
+            mapPane.validate();
+            mapPane.repaint();
+        }
     }//GEN-LAST:event_deleteFireReportActionPerformed
 
     private void moveDroneActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_moveDroneActionPerformed
@@ -168,15 +185,16 @@ public class ServerGUI extends javax.swing.JFrame {
         JTextField yField = new JTextField(5);
         JComboBox droneBox = new JComboBox(drones.keySet().toArray());
 
-        JPanel myPanel = new JPanel();
-        myPanel.add(droneBox);
-        myPanel.add(new JLabel("new x:"));
-        myPanel.add(xField);
-        myPanel.add(Box.createHorizontalStrut(15)); // a spacer
-        myPanel.add(new JLabel("new y:"));
-        myPanel.add(yField);
+        JPanel dronePanel = new JPanel();
+        dronePanel.add(new JLabel("drone Id:"));
+        dronePanel.add(droneBox);
+        dronePanel.add(new JLabel("new x:"));
+        dronePanel.add(xField);
+        dronePanel.add(Box.createHorizontalStrut(15)); // a spacer
+        dronePanel.add(new JLabel("new y:"));
+        dronePanel.add(yField);
 
-        int result = JOptionPane.showConfirmDialog(null, myPanel,
+        int result = JOptionPane.showConfirmDialog(null, dronePanel,
                 "Move drone to new location", JOptionPane.OK_CANCEL_OPTION);
         if (result == JOptionPane.OK_OPTION) {
             int newX = Integer.parseInt(xField.getText());
@@ -188,18 +206,35 @@ public class ServerGUI extends javax.swing.JFrame {
     }//GEN-LAST:event_moveDroneActionPerformed
 
     private void shotDownServerActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_shotDownServerActionPerformed
-        // TODO add your handling code here:
+        server.shotDownServer();
 
     }//GEN-LAST:event_shotDownServerActionPerformed
 
     private void clearMessagesActionPerform(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_clearMessagesActionPerform
-        // TODO add your handling code here:
         messagesTextArea.setText("");
     }//GEN-LAST:event_clearMessagesActionPerform
 
     private void recallDroneActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_recallDroneActionPerformed
-        JOptionPane.showMessageDialog(this, "Recalling drones");
-        server.recallDrones();
+        JComboBox droneBox = new JComboBox(drones.keySet().toArray());
+
+        JPanel dronePanel = new JPanel();
+        dronePanel.add(new JLabel("drone Id:"));
+        dronePanel.add(droneBox);
+
+        int result = JOptionPane.showConfirmDialog(null, dronePanel,
+                "Recall drone", JOptionPane.OK_CANCEL_OPTION);
+        if (result == JOptionPane.OK_OPTION) {
+            int droneId = Integer.parseInt(droneBox.getSelectedItem().toString());
+            server.recallDrone(droneId);
+            
+            JLabel droneIcon = drones.get(droneId);
+            mapPane.remove(droneIcon);
+            drones.remove(droneId);
+            mapPane.revalidate();
+            mapPane.validate();
+            mapPane.repaint();
+        }
+        
     }//GEN-LAST:event_recallDroneActionPerformed
 
     public void addDroneToMap(Drone drone) {

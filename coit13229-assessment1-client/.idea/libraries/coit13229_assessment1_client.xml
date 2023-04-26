@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="coit13229-assessment1-client">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/dist/coit13229-assessment1-client.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

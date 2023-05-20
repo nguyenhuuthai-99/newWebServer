@@ -50,14 +50,30 @@ public class Server {
         try {
             listenSocket = new ServerSocket(SERVER_PORT);
 
-            while (true) {
-                Socket clientSocket = listenSocket.accept();
-                connection = new Connection(clientSocket, serverGUI, activeDrones, activeFires);
-                connections.add(connection);
+            
+            new Thread(){
+                public void run(){
+                    while (true) {
+                        try {
+                            Socket clientSocket = listenSocket.accept();
+                            connection = new Connection(clientSocket, serverGUI, activeDrones, activeFires);
+                            connections.add(connection);
+                        } catch (IOException ex) {
+                            Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                
             }
+                }
+            }.start();
+            
+//            while(true){
+//                TimeUnit.SECONDS.sleep(10);
+//                updateLocation();
+//            }
+            
         } catch (IOException ex) {
             serverGUI.generateMessage("!!!Error: " + ex.getMessage());
-        }
+        } 
     }
 
     private void loadFire() {
@@ -89,7 +105,13 @@ public class Server {
             Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-
+    
+    private void updateLocation(){
+        for(Connection c: connections){
+            c.updateDronesLocation();
+        }
+    }
+    
     public void deleteFireReport(int fireId) {
         serverGUI.generateMessage("deleting fire " + fireId + "\n");
         activeFires.remove(fireId);
@@ -184,7 +206,6 @@ class Connection extends Thread {
         this.serverGUI = serverGUI;
         this.activeDrones = activeDrones;
         this.activeFires = activeFires;
-        System.out.println("asdffasdfsf");
 
         try {
             clientSocket = aClientSocket;
@@ -266,7 +287,7 @@ class Connection extends Thread {
         }
     }
 
-    private void updateDronesLocation() {
+    public void updateDronesLocation() {
         try {
             out.writeObject("getLocation");
             Drone drone = (Drone) in.readObject();
@@ -325,12 +346,13 @@ class Connection extends Thread {
 
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         ObjectOutputStream out = null;
-        try (FileOutputStream fos = new FileOutputStream(droneFile)){
+        try (FileOutputStream fos = new FileOutputStream(droneFile, true)){
             out = new ObjectOutputStream(bos);
             out.writeObject(drone);
             out.flush();
             byte[] data = bos.toByteArray();
             
+            //write drone data to binary file
             fos.write(data);
 
         } catch (IOException ex) {

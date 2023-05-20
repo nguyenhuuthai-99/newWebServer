@@ -46,7 +46,7 @@ public class Client {
                 isRegistered = registerDrone();
             }
             
-            
+            //in.readObject();
             new Thread() {
                 public void run() {
                     
@@ -75,6 +75,7 @@ public class Client {
                                     recallDrone();
                                     break;
                                 default:
+                                    break;
                                 
                             }
                         } catch (IOException ex) {
@@ -118,7 +119,7 @@ public class Client {
             System.out.println("readline:" + e.getMessage());
         } catch (InterruptedException ex) {
             Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
-        } finally {
+        }  finally {
             if (socket != null) try {
                 socket.close();
             } catch (IOException e) {
